@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Cores de identidade do app (não mudam) -->
+    <color name="primary">#900020</color>
+    <color name="primary_dark">#600010</color>
+    <color name="primary_light">#B22222</color>
+    <color name="accent">#FF5252</color>
+    <color name="accent_dark">#FF1744</color>
+
+    <!-- Cores para o tema claro -->
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#757575</color>
+    <color name="divider">#1F000000</color>
+
+    <color name="background">#FFFFFF</color>
+    <color name="surface">#F5F5F5</color>
+    <color name="card_background">#FFFFFF</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="button_color">#900020</color>
+    <color name="button_text">#FFFFFF</color>
+    <color name="error">#B00020</color>
+</resources>

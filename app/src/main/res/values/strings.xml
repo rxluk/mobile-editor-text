@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Informações do App -->
+    <string name="app_name">Mindra</string>
+    <string name="app_description">Organize suas ideias em uma rede de conhecimento</string>
+
+    <!-- Formulário de Nota -->
+    <string name="title_create_note">Nova Anotação</string>
+    <string name="label_note_title">Título</string>
+    <string name="label_note_content">Conteúdo</string>
+    <string name="label_category">Categoria</string>
+    <string name="hint_note_content">Compartilhe suas ideias aqui. Use [[palavra]] para criar conexões.</string>
+    <string name="title_edit_note">Editar Anotação</string>
+
+    <!-- Botões -->
+    <string name="btn_save">Salvar</string>
+
+    <!-- Navegação -->
+    <string name="menu_new_note">Nova nota</string>
+    <string name="menu_view_notes">Minhas notas</string>
+    <string name="menu_view_network">Visualizar rede</string>
+
+    <!-- Mensagens -->
+    <string name="toast_note_saved">Nota salva com sucesso!</string>
+    <string name="error_empty_title">O título não pode estar vazio</string>
+    <string name="error_empty_content">O conteúdo não pode estar vazio</string>
+    <string name="error_empty_category">A categoria não pode estar vazia</string>
+    <string name="toast_note_updated">Nota atualizada com sucesso!</string>
+
+
+    <!-- Lista de Notas -->
+    <string name="notes_title">Minhas Anotações</string>
+    <string name="no_notes">Nenhuma anotação encontrada</string>
+    <string name="connection_single">conexão</string>
+    <string name="connection_plural">conexões</string>
+    <string name="note_clicked">Nota selecionada: %1$s</string>
+
+    <!-- Visualização de Rede -->
+    <string name="network_view_title">Visualização de Rede</string>
+    <string name="network_instructions">Dica: Arraste para mover • Pinça para zoom • Toque duplo para resetar • Toque em um nó para abrir</string>
+
+
+    <!-- Tela de Autoria -->
+    <string name="about_title">Sobre o Aplicativo</string>
+    <string name="about_developer">Desenvolvedor</string>
+    <string name="about_student_name">Lucas Gabriel Costa</string>
+    <string name="about_course">Engenharia de Software - UTFPR</string>
+    <string name="about_email">lucasgabrielcosta@alunos.utfpr.edu.br</string>
+    <string name="about_utfpr_name">Universidade Tecnológica Federal do Paraná</string>
+    <string name="about_app_info">Sobre o Aplicativo</string>
+    <string name="about_app_description">O Mindra é um aplicativo de anotações que permite criar uma rede de conhecimento interconectado.
+        Com ele, você pode organizar suas ideias, criar relações entre conceitos e visualizar essas conexões para facilitar
+        o aprendizado e a gestão do conhecimento.</string>
+
+    <!-- Botões da Tela de Listagem -->
+    <string name="btn_add_note">Adicionar</string>
+    <string name="btn_about">Sobre</string>
+
+    <!-- Formulário de Notas (Novos campos) -->
+    <string name="btn_clear">Limpar</string>
+    <string name="toast_form_cleared">Formulário limpo!</string>
+    <string name="label_visibility">Visibilidade</string>
+    <string name="visibility_public">Pública</string>
+    <string name="visibility_private">Privada</string>
+    <string name="cb_favorite">Marcar como favorita</string>
+    <string name="label_tags">Tag</string>
+    <string name="error_no_visibility">Selecione um tipo de visibilidade</string>
+    <string name="toast_note_added">Nota adicionada com sucesso!</string>
+</resources>
