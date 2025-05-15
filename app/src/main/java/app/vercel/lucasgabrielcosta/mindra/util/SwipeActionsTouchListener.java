@@ -46,41 +46,14 @@ public class SwipeActionsTouchListener implements View.OnTouchListener {
     private long mDownTime;
     private int mSwipeDirection;
 
-    /**
-     * Interface para receber callbacks quando ocorrem ações de swipe.
-     */
     public interface SwipeActionsCallback {
-        /**
-         * Verifica se o item na posição pode receber ações de swipe.
-         *
-         * @param position A posição do item na lista
-         * @return true se o item pode receber swipe, false caso contrário
-         */
         boolean canSwipe(int position);
 
-        /**
-         * Chamado quando o usuário desliza o item para a direita (para editar).
-         *
-         * @param position A posição do item na lista
-         */
         void onSwipeRight(int position);
 
-        /**
-         * Chamado quando o usuário desliza o item para a esquerda (para excluir).
-         * Este método deve mostrar um diálogo de confirmação.
-         *
-         * @param position A posição do item na lista
-         * @param context O contexto para mostrar o diálogo
-         */
         void onSwipeLeft(int position, Context context);
     }
 
-    /**
-     * Construtor.
-     *
-     * @param listView O ListView que terá os gestos de swipe
-     * @param callback O callback para responder às ações de swipe
-     */
     public SwipeActionsTouchListener(ListView listView, SwipeActionsCallback callback) {
         ViewConfiguration vc = ViewConfiguration.get(listView.getContext());
         mSlop = vc.getScaledTouchSlop();
@@ -92,9 +65,6 @@ public class SwipeActionsTouchListener implements View.OnTouchListener {
         mCallback = callback;
     }
 
-    /**
-     * Habilita ou desabilita a detecção de swipe.
-     */
     public void setPaused(boolean paused) {
         mPaused = paused;
     }
@@ -153,14 +123,12 @@ public class SwipeActionsTouchListener implements View.OnTouchListener {
                 float deltaX = motionEvent.getRawX() - mDownX;
                 float deltaY = motionEvent.getRawY() - mDownY;
 
-                // Detectar a direção do swipe
                 if (deltaX > 0) {
                     mSwipeDirection = DIRECTION_RIGHT;
                 } else {
                     mSwipeDirection = DIRECTION_LEFT;
                 }
 
-                // Verificar se estamos deslizando horizontalmente
                 if (!mSwiping && Math.abs(deltaX) > mSlop && Math.abs(deltaY) < Math.abs(deltaX) / 2) {
                     mSwiping = true;
                     mSwipingSlop = (deltaX > 0 ? mSlop : -mSlop);
@@ -177,17 +145,15 @@ public class SwipeActionsTouchListener implements View.OnTouchListener {
 
                 if (mSwiping) {
                     mDownView.setTranslationX(deltaX - mSwipingSlop);
-                    // Ajusta a transparência para visualizar o progresso do swipe
                     mDownView.setAlpha(Math.max(0.2f, Math.min(1f,
                             1f - Math.abs(deltaX) / (mViewWidth * 0.5f))));
                     return true;
                 }
 
-                // Verificar para pressão longa
                 if (!mLongPressPerformed && SystemClock.elapsedRealtime() - mDownTime > ViewConfiguration.getLongPressTimeout() &&
                         Math.abs(deltaX) < mSlop && Math.abs(deltaY) < mSlop) {
                     mLongPressPerformed = true;
-                    return false;  // permitir que o evento seja passado para o ListView
+                    return false;
                 }
 
                 return false;
@@ -206,7 +172,6 @@ public class SwipeActionsTouchListener implements View.OnTouchListener {
                 float absVelocityY = Math.abs(mVelocityTracker.getYVelocity());
                 boolean triggerAction = false;
 
-                // Determinar se o swipe foi suficiente para acionar a ação
                 if (Math.abs(deltaX) > mViewWidth / 3 && mSwiping) {
                     triggerAction = true;
                 } else if (mMinFlingVelocity <= absVelocityX && absVelocityX <= mMaxFlingVelocity
@@ -215,23 +180,18 @@ public class SwipeActionsTouchListener implements View.OnTouchListener {
                 }
 
                 if (triggerAction && mDownPosition != ListView.INVALID_POSITION) {
-                    // Executar a ação com base na direção
                     if (mSwipeDirection == DIRECTION_RIGHT) {
-                        // Swipe para a direita - Editar
                         mCallback.onSwipeRight(mDownPosition);
                     } else {
-                        // Swipe para a esquerda - Excluir (com confirmação)
                         mCallback.onSwipeLeft(mDownPosition, mListView.getContext());
                     }
 
-                    // Restaurar o item após a animação
                     mDownView.animate()
                             .translationX(0)
                             .alpha(1)
                             .setDuration(mAnimationTime)
                             .setListener(null);
                 } else {
-                    // Restaura o item
                     if (mSwiping) {
                         mDownView.animate()
                                 .translationX(0)
@@ -257,7 +217,6 @@ public class SwipeActionsTouchListener implements View.OnTouchListener {
                 }
 
                 if (mDownView != null && mSwiping) {
-                    // Restaura o item
                     mDownView.animate()
                             .translationX(0)
                             .alpha(1)
