@@ -24,19 +24,34 @@
 
         <activity
             android:name=".activity.NoteFormActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".activity.NoteListActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.NoteListActivity" />
+        </activity>
 
         <activity
-            android:name=".activity.NoteListActivity"
-            android:exported="false" />
+                android:name=".activity.NoteListActivity"
+                android:exported="false" />
 
         <activity
             android:name=".activity.NetworkViewActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".activity.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.MainActivity" />
+        </activity>
 
         <activity
             android:name=".activity.AboutActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".activity.NoteListActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.NoteListActivity" />
+        </activity>
 
     </application>
 

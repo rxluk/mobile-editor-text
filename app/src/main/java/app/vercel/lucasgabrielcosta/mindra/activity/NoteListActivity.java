@@ -1,17 +1,24 @@
 package app.vercel.lucasgabrielcosta.mindra.activity;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,15 +27,21 @@ import app.vercel.lucasgabrielcosta.mindra.R;
 import app.vercel.lucasgabrielcosta.mindra.adapter.NoteAdapter;
 import app.vercel.lucasgabrielcosta.mindra.database.NoteDatabase;
 import app.vercel.lucasgabrielcosta.mindra.model.Note;
+import app.vercel.lucasgabrielcosta.mindra.util.SwipeActionsTouchListener;
 
+/**
+ * Activity que exibe a lista de notas cadastradas e permite interações como
+ * visualizar, adicionar, editar e excluir notas.
+ */
 public class NoteListActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private ListView listViewNotes;
-    private FloatingActionButton fabAddNote;
     private ArrayList<Note> noteList;
     private NoteAdapter noteAdapter;
     private NoteDatabase database;
+    private ActionMode actionMode;
+    private int selectedPosition = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +53,7 @@ public class NoteListActivity extends AppCompatActivity {
         setupAdapter();
         loadNotesFromDatabase();
         setupListClickListener();
-        setupButtonListeners();
+        setupSwipeActions();
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -52,13 +65,18 @@ public class NoteListActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Inicializa as referências para os componentes de UI.
+     */
     private void initializeViews() {
         toolbar = findViewById(R.id.toolbar);
         listViewNotes = findViewById(R.id.listViewNotes);
-        fabAddNote = findViewById(R.id.fabAddNote);
         database = NoteDatabase.getDatabase(this);
     }
 
+    /**
+     * Configura a toolbar com o título.
+     */
     private void setupToolbar() {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -66,12 +84,18 @@ public class NoteListActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Configura o adapter para a lista de notas.
+     */
     private void setupAdapter() {
         noteList = new ArrayList<>();
         noteAdapter = new NoteAdapter(this, noteList);
         listViewNotes.setAdapter(noteAdapter);
     }
 
+    /**
+     * Carrega as notas do banco de dados e atualiza a lista.
+     */
     private void loadNotesFromDatabase() {
         List<Note> notes = database.noteDao().getAllNotes();
         noteList.clear();
@@ -79,6 +103,9 @@ public class NoteListActivity extends AppCompatActivity {
         noteAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * Configura os listeners para cliques na lista.
+     */
     private void setupListClickListener() {
         listViewNotes.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -89,31 +116,173 @@ public class NoteListActivity extends AppCompatActivity {
                 }
             }
         });
-    }
 
-    private void openNoteForEditing(Note note) {
-        Intent intent = new Intent(NoteListActivity.this, NoteFormActivity.class);
-        intent.putExtra("note_id", note.getId());
-        startActivity(intent);
-    }
-
-    private void setupButtonListeners() {
-        fabAddNote.setOnClickListener(new View.OnClickListener() {
+        listViewNotes.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(NoteListActivity.this, NoteFormActivity.class);
-                startActivity(intent);
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if (actionMode != null) {
+                    return false;
+                }
+
+                selectedPosition = position;
+                actionMode = startActionMode(actionModeCallback);
+                view.setSelected(true);
+                return true;
             }
         });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        loadNotesFromDatabase();
+    /**
+     * Configura as ações de swipe para a lista.
+     */
+    private void setupSwipeActions() {
+        SwipeActionsTouchListener touchListener = new SwipeActionsTouchListener(
+                listViewNotes,
+                new SwipeActionsTouchListener.SwipeActionsCallback() {
+                    @Override
+                    public boolean canSwipe(int position) {
+                        return position < noteList.size();
+                    }
+
+                    @Override
+                    public void onSwipeRight(int position) {
+                        // Swipe para a direita - Editar
+                        if (position < noteList.size()) {
+                            Note selectedNote = noteList.get(position);
+                            openNoteForEditing(selectedNote);
+                        }
+                    }
+
+                    @Override
+                    public void onSwipeLeft(int position, Context context) {
+                        // Swipe para a esquerda - Excluir (com confirmação)
+                        if (position < noteList.size()) {
+                            Note noteToDelete = noteList.get(position);
+                            showDeleteConfirmationDialog(noteToDelete, position);
+                        }
+                    }
+                });
+
+        listViewNotes.setOnTouchListener(touchListener);
+        listViewNotes.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                // Desativa o swipe quando a lista está sendo rolada
+                touchListener.setPaused(scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING);
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            }
+        });
     }
 
-    private void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    /**
+     * Mostra um diálogo de confirmação antes de excluir uma nota.
+     *
+     * @param noteToDelete A nota a ser excluída
+     * @param position A posição da nota na lista
+     */
+    private void showDeleteConfirmationDialog(final Note noteToDelete, final int position) {
+        new AlertDialog.Builder(this)
+                .setTitle("Confirmar exclusão")
+                .setMessage("Tem certeza que deseja excluir a nota \"" + noteToDelete.getTitle() + "\"?")
+                .setPositiveButton("Excluir", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        database.noteDao().delete(noteToDelete);
+                        noteList.remove(position);
+                        noteAdapter.notifyDataSetChanged();
+                        Toast.makeText(NoteListActivity.this, "Nota excluída", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
     }
+
+    /**
+     * Abre a activity de formulário para editar uma nota.
+     *
+     * @param note A nota a ser editada
+     */
+    private void openNoteForEditing(Note note) {
+        Intent intent = new Intent(NoteListActivity.this, NoteFormActivity.class);
+        intent.putExtra("note_id", note.getId());
+        startActivityForResult(intent, 1);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_list, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_add) {
+            Intent intent = new Intent(NoteListActivity.this, NoteFormActivity.class);
+            startActivityForResult(intent, 1);
+            return true;
+        } else if (id == R.id.action_about) {
+            Intent intent = new Intent(NoteListActivity.this, AboutActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            loadNotesFromDatabase();
+        }
+    }
+
+    private ActionMode.Callback actionModeCallback = new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            mode.getMenuInflater().inflate(R.menu.context_menu_note, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            if (selectedPosition < 0 || selectedPosition >= noteList.size()) {
+                mode.finish();
+                return false;
+            }
+
+            Note selectedNote = noteList.get(selectedPosition);
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.action_edit) {
+                Intent intent = new Intent(NoteListActivity.this, NoteFormActivity.class);
+                intent.putExtra("note_id", selectedNote.getId());
+                startActivityForResult(intent, 1);
+                mode.finish();
+                return true;
+            } else if (itemId == R.id.action_delete) {
+                showDeleteConfirmationDialog(selectedNote, selectedPosition);
+                mode.finish();
+                return true;
+            }
+
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            actionMode = null;
+            selectedPosition = -1;
+        }
+    };
 }

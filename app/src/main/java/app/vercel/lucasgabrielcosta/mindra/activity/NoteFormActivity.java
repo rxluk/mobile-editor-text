@@ -1,21 +1,21 @@
 package app.vercel.lucasgabrielcosta.mindra.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
+import android.text.Editable;
+import android.text.Spannable;
+import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
-
-import android.text.Editable;
-import android.text.Spannable;
-import android.text.TextWatcher;
-import android.text.style.ForegroundColorSpan;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,8 +30,6 @@ public class NoteFormActivity extends AppCompatActivity {
     private TextInputEditText etNoteTitle;
     private TextInputEditText etNoteCategory;
     private TextInputEditText etNoteContent;
-    private ImageButton btnSave;
-    private Button btnClear;
     private NoteDatabase database;
     private int noteId = -1;
 
@@ -42,7 +40,6 @@ public class NoteFormActivity extends AppCompatActivity {
 
         initializeViews();
         setupToolbar();
-        setupButtonListeners();
         setupTextHighlighting();
         checkForEditMode();
     }
@@ -52,8 +49,6 @@ public class NoteFormActivity extends AppCompatActivity {
         etNoteTitle = findViewById(R.id.etNoteTitle);
         etNoteCategory = findViewById(R.id.etNoteCategory);
         etNoteContent = findViewById(R.id.etNoteContent);
-        btnSave = findViewById(R.id.btnSave);
-        btnClear = findViewById(R.id.btnClear);
         database = NoteDatabase.getDatabase(this);
     }
 
@@ -82,32 +77,6 @@ public class NoteFormActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setTitle(noteId > 0 ? R.string.title_edit_note : R.string.title_create_note);
         }
-
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
-    }
-
-    private void setupButtonListeners() {
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (validateForm()) {
-                    saveNote();
-                }
-            }
-        });
-
-        btnClear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clearForm();
-                showToast(getString(R.string.toast_form_cleared));
-            }
-        });
     }
 
     private void setupTextHighlighting() {
@@ -149,6 +118,34 @@ public class NoteFormActivity extends AppCompatActivity {
                 isHighlighting = false;
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_form, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_save) {
+            if (validateForm()) {
+                saveNote();
+            }
+            return true;
+        } else if (id == R.id.action_clear) {
+            clearForm();
+            showToast(getString(R.string.toast_form_cleared));
+            return true;
+        } else if (id == android.R.id.home) {
+            setResult(RESULT_CANCELED);
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private boolean validateForm() {
@@ -197,6 +194,8 @@ public class NoteFormActivity extends AppCompatActivity {
             showToast(getString(R.string.toast_note_saved));
         }
 
+        Intent resultIntent = new Intent();
+        setResult(RESULT_OK, resultIntent);
         finish();
     }
 

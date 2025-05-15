@@ -66,4 +66,6 @@
     <string name="label_tags">Tag</string>
     <string name="error_no_visibility">Selecione um tipo de visibilidade</string>
     <string name="toast_note_added">Nota adicionada com sucesso!</string>
+    <string name="editar">Editar</string>
+    <string name="excluir">Excluir</string>
 </resources>

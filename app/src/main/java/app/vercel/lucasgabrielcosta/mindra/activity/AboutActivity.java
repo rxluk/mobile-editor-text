@@ -2,8 +2,6 @@ package app.vercel.lucasgabrielcosta.mindra.activity;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SwitchCompat;
@@ -29,7 +27,7 @@ public class AboutActivity extends AppCompatActivity {
 
     private void initializeViews() {
         toolbar = findViewById(R.id.toolbar);
-        themeSwitch = findViewById(R.id.switch_theme);
+        themeSwitch = findViewById(R.id.switchTheme); // Aqui usamos o novo ID
         preferences = getSharedPreferences("mindra_preferences", MODE_PRIVATE);
     }
 
@@ -40,13 +38,6 @@ public class AboutActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setTitle(R.string.about_title);
         }
-
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
     }
 
     private void setupThemeSwitch() {

@@ -51,8 +51,6 @@ public class NetworkViewActivity extends AppCompatActivity implements NetworkVie
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setTitle(R.string.network_view_title);
         }
-
-        toolbar.setNavigationOnClickListener(v -> onBackPressed());
     }
 
     private void loadAllNotes() {
@@ -72,16 +70,25 @@ public class NetworkViewActivity extends AppCompatActivity implements NetworkVie
     public void onNodeSelected(Note note) {
         Toast.makeText(this, getString(R.string.note_clicked, note.getTitle()), Toast.LENGTH_SHORT).show();
 
-        // Abre a nota para edição quando um nó é clicado
         Intent intent = new Intent(this, NoteFormActivity.class);
         intent.putExtra("note_id", note.getId());
-        startActivity(intent);
+        startActivityForResult(intent, 1);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            loadAllNotes();
+            if (!allNotes.isEmpty()) {
+                networkView.setNotes(allNotes);
+            }
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Recarregar as notas se o usuário voltar para esta tela após editar uma nota
         loadAllNotes();
         if (!allNotes.isEmpty()) {
             networkView.setNotes(allNotes);

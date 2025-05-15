@@ -26,7 +26,6 @@
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <!-- Lista de notas -->
         <ListView
             android:id="@+id/listViewNotes"
             android:layout_width="match_parent"
@@ -36,15 +35,4 @@
             android:padding="8dp" />
 
     </LinearLayout>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddNote"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:contentDescription="@string/menu_new_note"
-        android:src="@drawable/ic_add"
-        app:backgroundTint="@color/primary" />
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
