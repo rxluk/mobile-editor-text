@@ -209,7 +209,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Configurações"
+                        android:text="@string/configuracoes"
                         android:textColor="@color/primary_text"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -219,16 +219,31 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Tema Escuro"
+                        android:text="@string/tema_escuro"
                         android:textColor="@color/primary_text" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Ative para usar o tema escuro, desative para o tema claro."
+                        android:text="@string/ative_tema_escuro"
                         android:textColor="@color/secondary_text"
                         android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/idioma"
+                        android:textColor="@color/primary_text"
+                        android:textStyle="bold" />
+
+                    <Spinner
+                        android:id="@+id/spinnerLanguage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:minHeight="48dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

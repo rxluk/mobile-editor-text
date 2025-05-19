@@ -2,12 +2,16 @@ package app.vercel.lucasgabrielcosta.mindra.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.cardview.widget.CardView;
+
+import java.util.Locale;
 
 import app.vercel.lucasgabrielcosta.mindra.R;
 
@@ -17,12 +21,27 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        applyUserLanguage();
         applyUserTheme();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         initializeViews();
         setupCardListeners();
+    }
+
+    private void applyUserLanguage() {
+        SharedPreferences preferences = getSharedPreferences("mindra_preferences", MODE_PRIVATE);
+        String languageCode = preferences.getString("language", "en");
+
+        Locale locale = new Locale(languageCode);
+        Locale.setDefault(locale);
+
+        Resources resources = getResources();
+        Configuration config = resources.getConfiguration();
+        config.setLocale(locale);
+
+        resources.updateConfiguration(config, resources.getDisplayMetrics());
     }
 
     private void applyUserTheme() {

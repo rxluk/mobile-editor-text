@@ -13,7 +13,6 @@ import java.util.Locale;
 
 import app.vercel.lucasgabrielcosta.mindra.R;
 import app.vercel.lucasgabrielcosta.mindra.model.Note;
-
 public class NoteAdapter extends BaseAdapter {
 
     private Context context;

@@ -24,48 +24,40 @@ import app.vercel.lucasgabrielcosta.mindra.model.Note;
 public class NetworkView extends View {
     private static final String TAG = "NetworkView";
 
-    // Interface para tratar a seleção de nós
     public interface OnNodeSelectedListener {
         void onNodeSelected(Note note);
     }
 
-    // Constantes para a visualização
     private static final float NODE_RADIUS = 60f;
     private static final float NODE_SPACING = 250f;
     private static final int TEXT_SIZE = 28;
     private static final int MAX_TITLE_LENGTH = 10;
 
-    // Dados
     private List<Note> notes = new ArrayList<>();
     private Map<String, List<Integer>> connectionsMap = new HashMap<>();
     private List<NodePosition> nodePositions = new ArrayList<>();
     private OnNodeSelectedListener nodeSelectedListener;
 
-    // Visualização
     private float translateX;
     private float translateY;
     private float scaleFactor = 1.0f;
     private int selectedNodeIndex = -1;
     private boolean positionsInitialized = false;
 
-    // Interação
     private ScaleGestureDetector scaleGestureDetector;
     private float lastTouchX;
     private float lastTouchY;
     private boolean isDragging = false;
 
-    // Variáveis de tempo para detectar duplo toque
     private long lastClickTime = 0;
     private static final long DOUBLE_CLICK_TIME_DELTA = 300; // milissegundos
 
-    // Pintura
     private Paint nodePaint;
     private Paint selectedNodePaint;
     private Paint textPaint;
     private Paint linePaint;
     private Paint arrowPaint;
 
-    // Classe para armazenar posição dos nós
     private static class NodePosition {
         float x, y;
         Note note;
@@ -161,31 +153,25 @@ public class NetworkView extends View {
         int width = getWidth();
         int height = getHeight();
 
-        // Centraliza a visualização inicialmente
         translateX = width / 2f;
         translateY = height / 2f;
 
-        // Certifique-se de que temos dimensões válidas
         if (width <= 0) width = 1000;
         if (height <= 0) height = 1000;
 
         float centerX = 0;
         float centerY = 0;
 
-        // Posicione o primeiro nó no centro
         if (!notes.isEmpty()) {
             NodePosition firstNode = new NodePosition(centerX, centerY, notes.get(0));
             nodePositions.add(firstNode);
         }
 
-        // Para cada nota restante, posicione em um círculo em torno do centro
         int nodeCount = notes.size();
         for (int i = 1; i < nodeCount; i++) {
-            // Calcula a posição em um círculo
             float angle = (float) (2 * Math.PI * i / nodeCount);
             float distance = NODE_SPACING * Math.min(nodeCount * 0.15f, 2.0f);
 
-            // Adiciona alguma aleatoriedade para evitar sobreposições
             angle += random.nextFloat() * 0.2f - 0.1f;
             distance += random.nextFloat() * (NODE_SPACING * 0.3f);
 
@@ -204,7 +190,6 @@ public class NetworkView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         Log.d(TAG, "onSizeChanged: w=" + w + ", h=" + h);
 
-        // Centralize a visualização inicialmente
         translateX = w / 2f;
         translateY = h / 2f;
 
@@ -225,22 +210,18 @@ public class NetworkView extends View {
             return;
         }
 
-        // Aplica transformações ao canvas
         canvas.save();
         canvas.translate(translateX, translateY);
         canvas.scale(scaleFactor, scaleFactor);
 
-        // Desenha as conexões
         drawConnections(canvas);
 
-        // Desenha os nós
         drawNodes(canvas);
 
         canvas.restore();
     }
 
     private void drawConnections(Canvas canvas) {
-        // Para cada nó, verifique suas conexões
         for (int i = 0; i < nodePositions.size(); i++) {
             NodePosition sourceNode = nodePositions.get(i);
             Note sourceNote = sourceNode.note;
@@ -250,12 +231,11 @@ public class NetworkView extends View {
             }
 
             for (String connection : sourceNote.getConnections()) {
-                // Encontra nós que correspondem a esta conexão
                 List<Integer> connectedNodeIndices = connectionsMap.get(connection);
                 if (connectedNodeIndices == null) continue;
 
                 for (Integer targetIndex : connectedNodeIndices) {
-                    if (targetIndex != i && targetIndex < nodePositions.size()) { // Não conecte a si mesmo
+                    if (targetIndex != i && targetIndex < nodePositions.size()) {
                         NodePosition targetNode = nodePositions.get(targetIndex);
                         drawConnection(canvas, sourceNode, targetNode);
                     }
@@ -265,33 +245,26 @@ public class NetworkView extends View {
     }
 
     private void drawConnection(Canvas canvas, NodePosition source, NodePosition target) {
-        // Calcula pontos para desenhar a linha
         float sourceX = source.x;
         float sourceY = source.y;
         float targetX = target.x;
         float targetY = target.y;
 
-        // Calcula o ângulo da conexão
         double angle = Math.atan2(targetY - sourceY, targetX - sourceX);
 
-        // Ajusta os pontos de início e fim para que as linhas comecem e terminem na borda dos nós
         float startX = (float) (sourceX + NODE_RADIUS * Math.cos(angle));
         float startY = (float) (sourceY + NODE_RADIUS * Math.sin(angle));
         float endX = (float) (targetX - NODE_RADIUS * Math.cos(angle));
         float endY = (float) (targetY - NODE_RADIUS * Math.sin(angle));
 
-        // Desenha a linha
         canvas.drawLine(startX, startY, endX, endY, linePaint);
 
-        // Desenha a seta
         drawArrow(canvas, endX, endY, angle);
     }
 
     private void drawArrow(Canvas canvas, float x, float y, double angle) {
-        // Tamanho da seta
         float arrowSize = 15f;
 
-        // Cria o caminho para a seta
         Path path = new Path();
         path.moveTo(x, y);
         path.lineTo((float) (x - arrowSize * Math.cos(angle - Math.PI/6)),
@@ -300,7 +273,6 @@ public class NetworkView extends View {
                 (float) (y - arrowSize * Math.sin(angle + Math.PI/6)));
         path.close();
 
-        // Desenha a seta
         canvas.drawPath(path, arrowPaint);
     }
 
@@ -308,33 +280,26 @@ public class NetworkView extends View {
         for (int i = 0; i < nodePositions.size(); i++) {
             NodePosition node = nodePositions.get(i);
 
-            // Selecione a cor com base se o nó está selecionado
             Paint currentPaint = (i == selectedNodeIndex) ? selectedNodePaint : nodePaint;
 
-            // Desenha o círculo do nó
             canvas.drawCircle(node.x, node.y, NODE_RADIUS, currentPaint);
 
-            // Prepara o texto para exibição
             String title = node.note.getTitle();
             if (title.length() > MAX_TITLE_LENGTH) {
                 title = title.substring(0, MAX_TITLE_LENGTH) + "...";
             }
 
-            // Centraliza o texto verticalmente
             float textHeight = textPaint.descent() - textPaint.ascent();
             float textOffset = textHeight / 2 - textPaint.descent();
 
-            // Desenha o título
             canvas.drawText(title, node.x, node.y + textOffset, textPaint);
         }
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        // Processa o evento de escala primeiro
         boolean scaleHandled = scaleGestureDetector.onTouchEvent(event);
 
-        // Se estamos no meio de um gesto de escala, não processe outros gestos
         if (scaleGestureDetector.isInProgress()) {
             return true;
         }
@@ -342,49 +307,39 @@ public class NetworkView extends View {
         final int action = event.getAction();
         switch (action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                // Salva a posição inicial de toque
                 lastTouchX = event.getX();
                 lastTouchY = event.getY();
 
-                // Verifica se o toque foi em um nó
                 int nodeIndex = findNodeAtPosition(event.getX(), event.getY());
 
                 if (nodeIndex >= 0) {
-                    // Se tocou em um nó
                     long clickTime = System.currentTimeMillis();
                     if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
-                        // Duplo clique no nó - abre a nota
                         if (nodeSelectedListener != null) {
                             nodeSelectedListener.onNodeSelected(nodePositions.get(nodeIndex).note);
                         }
                     } else {
-                        // Clique simples no nó - seleciona
                         selectedNodeIndex = nodeIndex;
                         invalidate();
                     }
                     lastClickTime = clickTime;
                     return true;
                 } else {
-                    // Se tocou fora de um nó, inicia o arrasto
                     isDragging = true;
                     return true;
                 }
 
             case MotionEvent.ACTION_MOVE:
                 if (isDragging) {
-                    // Calcula quanto o dedo se moveu
                     float dx = event.getX() - lastTouchX;
                     float dy = event.getY() - lastTouchY;
 
-                    // Move a visualização
                     translateX += dx;
                     translateY += dy;
 
-                    // Atualiza as coordenadas do último toque
                     lastTouchX = event.getX();
                     lastTouchY = event.getY();
 
-                    // Redesenha a visualização
                     invalidate();
                     return true;
                 }
@@ -392,7 +347,6 @@ public class NetworkView extends View {
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                // Encerra o arrasto
                 isDragging = false;
                 return true;
         }
@@ -401,11 +355,9 @@ public class NetworkView extends View {
     }
 
     private int findNodeAtPosition(float x, float y) {
-        // Converte coordenadas de tela para coordenadas do gráfico
         float graphX = (x - translateX) / scaleFactor;
         float graphY = (y - translateY) / scaleFactor;
 
-        // Verifica se o ponto está dentro de algum nó
         for (int i = 0; i < nodePositions.size(); i++) {
             NodePosition node = nodePositions.get(i);
             float distance = (float) Math.sqrt(Math.pow(graphX - node.x, 2) + Math.pow(graphY - node.y, 2));
@@ -422,7 +374,6 @@ public class NetworkView extends View {
         public boolean onScale(ScaleGestureDetector detector) {
             scaleFactor *= detector.getScaleFactor();
 
-            // Limita o fator de escala
             scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 5.0f));
 
             invalidate();

@@ -29,10 +29,6 @@ import app.vercel.lucasgabrielcosta.mindra.database.NoteDatabase;
 import app.vercel.lucasgabrielcosta.mindra.model.Note;
 import app.vercel.lucasgabrielcosta.mindra.util.SwipeActionsTouchListener;
 
-/**
- * Activity que exibe a lista de notas cadastradas e permite interações como
- * visualizar, adicionar, editar e excluir notas.
- */
 public class NoteListActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
@@ -65,18 +61,12 @@ public class NoteListActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Inicializa as referências para os componentes de UI.
-     */
     private void initializeViews() {
         toolbar = findViewById(R.id.toolbar);
         listViewNotes = findViewById(R.id.listViewNotes);
         database = NoteDatabase.getDatabase(this);
     }
 
-    /**
-     * Configura a toolbar com o título.
-     */
     private void setupToolbar() {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -84,18 +74,12 @@ public class NoteListActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Configura o adapter para a lista de notas.
-     */
     private void setupAdapter() {
         noteList = new ArrayList<>();
         noteAdapter = new NoteAdapter(this, noteList);
         listViewNotes.setAdapter(noteAdapter);
     }
 
-    /**
-     * Carrega as notas do banco de dados e atualiza a lista.
-     */
     private void loadNotesFromDatabase() {
         List<Note> notes = database.noteDao().getAllNotes();
         noteList.clear();
@@ -103,9 +87,6 @@ public class NoteListActivity extends AppCompatActivity {
         noteAdapter.notifyDataSetChanged();
     }
 
-    /**
-     * Configura os listeners para cliques na lista.
-     */
     private void setupListClickListener() {
         listViewNotes.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -132,9 +113,6 @@ public class NoteListActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Configura as ações de swipe para a lista.
-     */
     private void setupSwipeActions() {
         SwipeActionsTouchListener touchListener = new SwipeActionsTouchListener(
                 listViewNotes,
@@ -177,12 +155,6 @@ public class NoteListActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Mostra um diálogo de confirmação antes de excluir uma nota.
-     *
-     * @param noteToDelete A nota a ser excluída
-     * @param position A posição da nota na lista
-     */
     private void showDeleteConfirmationDialog(final Note noteToDelete, final int position) {
         new AlertDialog.Builder(this)
                 .setTitle("Confirmar exclusão")
@@ -200,11 +172,6 @@ public class NoteListActivity extends AppCompatActivity {
                 .show();
     }
 
-    /**
-     * Abre a activity de formulário para editar uma nota.
-     *
-     * @param note A nota a ser editada
-     */
     private void openNoteForEditing(Note note) {
         Intent intent = new Intent(NoteListActivity.this, NoteFormActivity.class);
         intent.putExtra("note_id", note.getId());
